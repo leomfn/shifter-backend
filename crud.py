@@ -1,5 +1,4 @@
 from sqlalchemy.orm import Session
-
 import models, schemas
 
 
@@ -41,28 +40,57 @@ def get_shift(db: Session, shift_id: int):
 
 
 def get_shifts(db: Session):
-    return db.query(models.Shift).all()
+    # TODO: sort shifts by day_of_week and time_start?
+    shifts = db.query(models.Shift).all()
+    signups = db.query(models.ShiftSignup).all()
+
+    results = []
+
+    for shift in shifts:
+        shift_data = {
+            "shift_id": shift.id,
+            "day_of_week": shift.day_of_week,
+            "time_start": shift.time_start,
+            "time_end": shift.time_end,
+            "signups": [
+                signup.user_id for signup in signups if signup.shift_id == shift.id
+            ],
+        }
+
+        results.append(shift_data)
+
+    return results
 
 
-def get_shift_signups(db: Session):
-    return db.query(models.ShiftSignup).all()
+def check_shift_signup_exists(db: Session, user_id: int, shift_id: int):
+    signup_exists = (
+        db.query(models.ShiftSignup)
+        .filter(
+            models.ShiftSignup.shift_id == shift_id,
+            models.ShiftSignup.user_id == user_id,
+        )
+        .first()
+        != None
+    )
+
+    return signup_exists
 
 
 def shift_signup(db: Session, user_id: int, shift_id: int):
     new_signup = models.ShiftSignup(user_id=user_id, shift_id=shift_id)
+    # print("would create new shift signup ", {"user_id": user_id, "shift_id": shift_id})
+
     db.add(new_signup)
     db.commit()
     db.refresh(new_signup)
     return new_signup
 
 
-def get_items(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Item).offset(skip).limit(limit).all()
-
-
-def create_user_item(db: Session, item: schemas.ItemCreate, user_id: int):
-    db_item = models.Item(**item.dict(), owner_id=user_id)
-    db.add(db_item)
+def shift_signout(db: Session, user_id: int, shift_id: int):
+    deleted_signup = models.ShiftSignup(user_id=user_id, shift_id=shift_id)
+    db.query(models.ShiftSignup).filter(
+        models.ShiftSignup.user_id == user_id, models.ShiftSignup.shift_id == shift_id
+    ).delete()
     db.commit()
-    db.refresh(db_item)
-    return db_item
+    # db.refresh(deleted_signup)
+    return deleted_signup

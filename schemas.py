@@ -30,6 +30,18 @@ class ShiftSignup(BaseModel):
     shift_id: int
 
 
+class ShiftSignups(BaseModel):
+    shift_id: int
+    day_of_week: int
+    time_start: time
+    time_end: time
+    signups: list[int]
+
+
+# class UserShifts(BaseModel):
+#     day_of_week: int
+
+
 class UserBase(BaseModel):
     email: str
 
@@ -41,7 +53,6 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     is_active: bool
-    # items: list[Item] = []
 
     class Config:
         from_attributes = True
