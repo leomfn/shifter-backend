@@ -2,15 +2,15 @@ from sqlalchemy.orm import Session
 import models, schemas
 
 
-def get_user(db: Session, user_id: int):
+def read_user_by_id(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id == user_id).first()
 
 
-def get_user_by_email(db: Session, email: str):
+def read_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
 
 
-def get_users(db: Session):
+def read_users(db: Session):
     return db.query(models.User).all()
 
 
@@ -35,11 +35,11 @@ def create_shift(db: Session, shift: schemas.Shift):
     return new_shift
 
 
-def get_shift(db: Session, shift_id: int):
+def read_shift_by_id(db: Session, shift_id: int):
     return db.query(models.Shift).filter(models.Shift.id == shift_id).first()
 
 
-def get_shifts(db: Session):
+def read_shifts(db: Session):
     # TODO: sort shifts by day_of_week and time_start?
     shifts = db.query(models.Shift).all()
     signups = db.query(models.ShiftSignup).all()
@@ -76,7 +76,7 @@ def check_shift_signup_exists(db: Session, user_id: int, shift_id: int):
     return signup_exists
 
 
-def shift_signup(db: Session, user_id: int, shift_id: int):
+def create_signup(db: Session, user_id: int, shift_id: int):
     new_signup = models.ShiftSignup(user_id=user_id, shift_id=shift_id)
     # print("would create new shift signup ", {"user_id": user_id, "shift_id": shift_id})
 
@@ -86,11 +86,10 @@ def shift_signup(db: Session, user_id: int, shift_id: int):
     return new_signup
 
 
-def shift_signout(db: Session, user_id: int, shift_id: int):
+def delete_signup(db: Session, user_id: int, shift_id: int):
     deleted_signup = models.ShiftSignup(user_id=user_id, shift_id=shift_id)
     db.query(models.ShiftSignup).filter(
         models.ShiftSignup.user_id == user_id, models.ShiftSignup.shift_id == shift_id
     ).delete()
     db.commit()
-    # db.refresh(deleted_signup)
     return deleted_signup
