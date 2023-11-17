@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 import models, schemas
+from datetime import date
 
 
 def read_user_by_id(db: Session, user_id: int):
@@ -41,33 +42,40 @@ def read_shift_by_id(db: Session, shift_id: int):
 
 def read_shifts(db: Session):
     # TODO: sort shifts by day_of_week and time_start?
-    shifts = db.query(models.Shift).all()
-    signups = db.query(models.ShiftSignup).all()
+    return db.query(models.Shift).all()
+    # signups = db.query(models.Shift).all()
 
-    results = []
+    # print(shifts)
 
-    for shift in shifts:
-        shift_data = {
-            "shift_id": shift.id,
-            "day_of_week": shift.day_of_week,
-            "time_start": shift.time_start,
-            "time_end": shift.time_end,
-            "signups": [
-                signup.user_id for signup in signups if signup.shift_id == shift.id
-            ],
-        }
+    # results = []
 
-        results.append(shift_data)
+    # for shift in shifts:
+    #     shift_data = {
+    #         "shift_id": shift.id,
+    #         "day_of_week": shift.day_of_week,
+    #         "time_start": shift.time_start,
+    #         "time_end": shift.time_end,
+    #         "signups": [
+    #             signup.user_id for signup in signups if signup.shift_id == shift.id
+    #         ],
+    #     }
 
-    return results
+    #     results.append(shift_data)
+
+    # return results
 
 
-def check_shift_signup_exists(db: Session, user_id: int, shift_id: int):
+def read_signups(db: Session):
+    return db.query(models.Signup).all()
+
+
+def check_shift_signup_exists(db: Session, signup: schemas.CreateSignup):
     signup_exists = (
-        db.query(models.ShiftSignup)
+        db.query(models.Signup)
         .filter(
-            models.ShiftSignup.shift_id == shift_id,
-            models.ShiftSignup.user_id == user_id,
+            models.Signup.shift_id == signup.shift_id,
+            models.Signup.user_id == signup.user_id,
+            models.Signup.date_once == signup.date_once,
         )
         .first()
         != None
@@ -76,9 +84,15 @@ def check_shift_signup_exists(db: Session, user_id: int, shift_id: int):
     return signup_exists
 
 
-def create_signup(db: Session, user_id: int, shift_id: int):
-    new_signup = models.ShiftSignup(user_id=user_id, shift_id=shift_id)
-    # print("would create new shift signup ", {"user_id": user_id, "shift_id": shift_id})
+def create_signup(db: Session, signup: schemas.CreateSignup):
+    new_signup = models.Signup(
+        user_id=signup.user_id,
+        shift_id=signup.shift_id,
+        type=signup.type,
+        date_once=signup.date_once,
+        date_start=signup.date_start,
+        date_end=signup.date_end,
+    )
 
     db.add(new_signup)
     db.commit()
@@ -86,10 +100,16 @@ def create_signup(db: Session, user_id: int, shift_id: int):
     return new_signup
 
 
-def delete_signup(db: Session, user_id: int, shift_id: int):
-    deleted_signup = models.ShiftSignup(user_id=user_id, shift_id=shift_id)
-    db.query(models.ShiftSignup).filter(
-        models.ShiftSignup.user_id == user_id, models.ShiftSignup.shift_id == shift_id
+# def create_date_signup(db: Session, user_id: int, shift_id: int, date: date):
+#     print([user_id, shift_id, date])
+
+
+def delete_signup(db: Session, signup: schemas.CreateSignup):
+    # deleted_signup = models.Shift(user_id=user_id, shift_id=shift_id)
+    db.query(models.Signup).filter(
+        models.Signup.user_id == signup.user_id,
+        models.Signup.shift_id == signup.shift_id,
+        models.Signup.date_once == signup.date_once,
     ).delete()
     db.commit()
-    return deleted_signup
+    # return deleted_signup

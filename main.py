@@ -58,33 +58,53 @@ def create_shift(shift: schemas.Shift, db: Session = Depends(get_db)):
     return crud.create_shift(db=db, shift=shift)
 
 
-@app.get("/shifts", response_model=list[schemas.ShiftSignups])
+@app.get("/shifts", response_model=list[schemas.ShiftResponse])
 def read_all_shifts(db: Session = Depends(get_db)):
-    shift_signups = crud.read_shifts(db)
-    return shift_signups
+    return crud.read_shifts(db)
 
 
-@app.post("/signups/toggle", response_model=schemas.ShiftSignup)
-def create_shift_signup(
-    signup_data: schemas.ShiftSignup, db: Session = Depends(get_db)
-):
-    db_user = crud.read_user_by_id(db, user_id=signup_data.user_id)
+@app.get("/signups", response_model=list[schemas.CreateSignup])
+def get_all_signups(db: Session = Depends(get_db)):
+    return crud.read_signups(db)
 
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
 
-    db_shift = crud.read_shift_by_id(db, shift_id=signup_data.shift_id)
-    if db_shift is None:
-        raise HTTPException(status_code=404, detail="Shift not found")
+@app.post("/signups")
+def sign_up_for_shift(signup: schemas.CreateSignup, db: Session = Depends(get_db)):
+    # Check if signup already exists
+    if crud.check_shift_signup_exists(db, signup):
+        raise HTTPException(403, "Signup already exists")
 
-    signup_exists = crud.check_shift_signup_exists(
-        db, user_id=signup_data.user_id, shift_id=signup_data.shift_id
-    )
-    if signup_exists:
-        return crud.delete_signup(
-            db, user_id=signup_data.user_id, shift_id=signup_data.shift_id
-        )
+    if signup.type == "once":
+        print("sign up one time")
+    elif signup.type == "regular":
+        print("sign up regular")
     else:
-        return crud.create_signup(
-            db=db, user_id=signup_data.user_id, shift_id=signup_data.shift_id
-        )
+        print("unknown")
+
+    return crud.create_signup(db, signup)
+
+
+# @app.post("/signups/toggle", response_model=schemas.ShiftSignup)
+# def create_shift_signup(
+#     signup_data: schemas.ShiftSignup, db: Session = Depends(get_db)
+# ):
+#     db_user = crud.read_user_by_id(db, user_id=signup_data.user_id)
+
+#     if db_user is None:
+#         raise HTTPException(status_code=404, detail="User not found")
+
+#     db_shift = crud.read_shift_by_id(db, shift_id=signup_data.shift_id)
+#     if db_shift is None:
+#         raise HTTPException(status_code=404, detail="Shift not found")
+
+#     signup_exists = crud.check_shift_signup_exists(
+#         db, user_id=signup_data.user_id, shift_id=signup_data.shift_id
+#     )
+#     if signup_exists:
+#         return crud.delete_signup(
+#             db, user_id=signup_data.user_id, shift_id=signup_data.shift_id
+#         )
+#     else:
+#         return crud.create_signup(
+#             db=db, user_id=signup_data.user_id, shift_id=signup_data.shift_id
+#         )

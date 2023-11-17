@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Time
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Time, Date
 from database import Base
 
 
@@ -18,11 +18,17 @@ class Shift(Base):
     day_of_week = Column(Integer)
     time_start = Column(Time)
     time_end = Column(Time)
+    date_start = Column(Date)
+    is_active = Column(Boolean)
 
 
-class ShiftSignup(Base):
+class Signup(Base):
     __tablename__ = "signups"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     shift_id = Column(Integer, ForeignKey("shifts.id"))
+    type = Column(String)  # once, regular, ...
+    date_once = Column(Date)
+    date_start = Column(Date)
+    date_end = Column(Date)
