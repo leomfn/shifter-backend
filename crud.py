@@ -84,7 +84,7 @@ def check_shift_signup_exists(db: Session, signup: schemas.CreateSignup):
     return signup_exists
 
 
-def create_signup(db: Session, signup: schemas.CreateSignup):
+def create_signup(db: Session, signup: schemas.SignupResponse):
     new_signup = models.Signup(
         user_id=signup.user_id,
         shift_id=signup.shift_id,
@@ -104,12 +104,6 @@ def create_signup(db: Session, signup: schemas.CreateSignup):
 #     print([user_id, shift_id, date])
 
 
-def delete_signup(db: Session, signup: schemas.CreateSignup):
-    # deleted_signup = models.Shift(user_id=user_id, shift_id=shift_id)
-    db.query(models.Signup).filter(
-        models.Signup.user_id == signup.user_id,
-        models.Signup.shift_id == signup.shift_id,
-        models.Signup.date_once == signup.date_once,
-    ).delete()
+def delete_signup(db: Session, signup_id: int):
+    db.query(models.Signup).filter(models.Signup.id == signup_id).delete()
     db.commit()
-    # return deleted_signup

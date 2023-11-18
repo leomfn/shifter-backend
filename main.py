@@ -63,7 +63,7 @@ def read_all_shifts(db: Session = Depends(get_db)):
     return crud.read_shifts(db)
 
 
-@app.get("/signups", response_model=list[schemas.CreateSignup])
+@app.get("/signups", response_model=list[schemas.SignupResponse])
 def get_all_signups(db: Session = Depends(get_db)):
     return crud.read_signups(db)
 
@@ -82,6 +82,17 @@ def sign_up_for_shift(signup: schemas.CreateSignup, db: Session = Depends(get_db
         print("unknown")
 
     return crud.create_signup(db, signup)
+
+
+@app.delete("/signups/{id}")
+def sign_out_from_shift(id: int, db: Session = Depends(get_db)):
+    # if not crud.check_shift_signup_exists(db, signup):
+    #     raise HTTPException(400, "Signup does not exist")
+
+    # if signup.type == "once":
+    #     print("sign out of one-time shift signup")
+
+    return crud.delete_signup(db, signup_id=id)
 
 
 # @app.post("/signups/toggle", response_model=schemas.ShiftSignup)
