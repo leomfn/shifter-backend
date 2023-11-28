@@ -107,3 +107,48 @@ def create_signup(db: Session, signup: schemas.SignupResponse):
 def delete_signup(db: Session, signup_id: int):
     db.query(models.Signup).filter(models.Signup.id == signup_id).delete()
     db.commit()
+
+
+# Regular Signups CRUD
+def create_regular_signup(
+    db: Session, signup: schemas.CreateRegularSignup
+) -> schemas.RegularSignupResponse:
+    new_regular_signup = models.RegularSignup(
+        user_id=signup.user_id,
+        shift_id=signup.shift_id,
+        date_start=signup.date_start,
+        date_end=signup.date_end,
+    )
+
+    db.add(new_regular_signup)
+    db.commit()
+    db.refresh(new_regular_signup)
+    return new_regular_signup
+
+
+def read_regular_signups(db: Session) -> list[schemas.RegularSignupResponse]:
+    return db.query(models.RegularSignup).all()
+
+
+def read_regular_signup_by_id(
+    db: Session, signup_id: int
+) -> schemas.RegularSignupResponse | None:
+    return (
+        db.query(models.RegularSignup)
+        .filter(models.RegularSignup.id == signup_id)
+        .one_or_none()
+    )
+
+
+# def delete_regular_signup(db: Session, signup_id: int) -> schemas.RegularSignupResponse:
+#     num_deleted = (
+#         db.query(models.RegularSignup)
+#         .filter(
+#             models.RegularSignup.id == signup_id,
+#         )
+#         .delete()
+#     )
+    
+#     print(num_deleted, 'rows deleted')
+
+#     # db.commit

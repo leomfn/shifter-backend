@@ -1,8 +1,8 @@
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-import crud, models, schemas
+import crud, models, schemas, helpers
 from database import SessionLocal, engine
 
 models.Base.metadata.create_all(bind=engine)
@@ -93,6 +93,44 @@ def sign_out_from_shift(id: int, db: Session = Depends(get_db)):
     #     print("sign out of one-time shift signup")
 
     return crud.delete_signup(db, signup_id=id)
+
+
+@app.get("/signups/regular")
+def get_all_regular_signups(db: Session = Depends(get_db)):
+    return crud.read_regular_signups(db)
+
+
+@app.post("/signups/regular")
+def sign_up_for_shift_regularly(
+    signup: schemas.CreateRegularSignup, db: Session = Depends(get_db)
+):
+    if helpers.check_regular_signup_exists(db, signup):
+        raise HTTPException(403, "Signup already exists")
+
+    return crud.create_regular_signup(db=db, signup=signup)
+
+
+@app.delete("/signups/regular/{signup_id}", status_code=status.HTTP_204_NO_CONTENT)
+def sign_out_from_regular_shift(signup_id: int, db: Session = Depends(get_db)):
+    num_rows_deleted = (
+        db.query(models.RegularSignup)
+        .filter(
+            models.RegularSignup.id == signup_id,
+        )
+        .delete()
+    )
+
+    if num_rows_deleted == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Record not found"
+        )
+    elif num_rows_deleted > 1:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Cannot delete more than one record",
+        )
+    else:
+        db.commit()
 
 
 # @app.post("/signups/toggle", response_model=schemas.ShiftSignup)

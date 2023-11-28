@@ -40,7 +40,19 @@ class CreateSignup(BaseModel):
     date_start: date | None = None
     date_end: date | None = None
 
+
 class SignupResponse(CreateSignup):
+    id: int
+
+
+class CreateRegularSignup(BaseModel):
+    user_id: int
+    shift_id: int
+    date_start: date | None = None
+    date_end: date | None = None
+
+
+class RegularSignupResponse(CreateRegularSignup):
     id: int
 
 
