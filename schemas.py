@@ -2,23 +2,6 @@ from pydantic import BaseModel
 from datetime import time, date
 
 
-class ItemBase(BaseModel):
-    title: str
-    description: str | None = None
-
-
-class ItemCreate(ItemBase):
-    pass
-
-
-class Item(ItemBase):
-    id: int
-    owner_id: int
-
-    class Config:
-        from_attributes = True
-
-
 class Shift(BaseModel):
     day_of_week: int
     time_start: time
@@ -66,17 +49,14 @@ class SingleSignoutResponse(CreateSingleSignout):
     id: int
 
 
-# class ShiftSignup(BaseModel):
-#     user_id: int
-#     shift_id: int
+class CreateSingleSignup(BaseModel):
+    user_id: int
+    shift_id: int
+    signup_date: date | None = None
 
 
-# class ShiftSignups(BaseModel):
-#     shift_id: int
-#     day_of_week: int
-#     time_start: time
-#     time_end: time
-#     signups: list[int]
+class SingleSignupResponse(CreateSingleSignup):
+    id: int
 
 
 class UserBase(BaseModel):

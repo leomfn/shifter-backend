@@ -63,43 +63,51 @@ def read_all_shifts(db: Session = Depends(get_db)):
     return crud.read_shifts(db)
 
 
-# @app.get("/signups", response_model=list[schemas.SignupResponse])
-# def get_all_signups(db: Session = Depends(get_db)):
-#     return crud.read_signups(db)
-
-
-# @app.post("/signups")
-# def sign_up_for_shift(signup: schemas.CreateSignup, db: Session = Depends(get_db)):
-#     # Check if signup already exists
-#     if crud.check_shift_signup_exists(db, signup):
-#         raise HTTPException(403, "Signup already exists")
-
-#     if signup.type == "once":
-#         print("sign up one time")
-#     elif signup.type == "regular":
-#         print("sign up regular")
-#     else:
-#         print("unknown")
-
-#     return crud.create_signup(db, signup)
-
-
-# @app.delete("/signups/{id}")
-# def sign_out_from_shift(id: int, db: Session = Depends(get_db)):
-#     # if not crud.check_shift_signup_exists(db, signup):
-#     #     raise HTTPException(400, "Signup does not exist")
-
-#     # if signup.type == "once":
-#     #     print("sign out of one-time shift signup")
-
-#     return crud.delete_signup(db, signup_id=id)
-
-
 @app.get("/signups/single")
 def get_all_single_signups(db: Session = Depends(get_db)):
-    pass
-    # db.query(models.SingleSignup)
-    # return crud.read_regular_signups(db)
+    return crud.read_single_signups(db)
+
+
+@app.post("/signups/single", status_code=status.HTTP_201_CREATED)
+def create_single_signup(
+    signup: schemas.CreateSingleSignup, db: Session = Depends(get_db)
+) -> schemas.SingleSignupResponse:
+    if helpers.check_single_signout_exists(db, signup):
+        raise HTTPException(403, "Signup already exists")
+
+    new_signup = models.SingleSignup(
+        user_id=signup.user_id,
+        shift_id=signup.shift_id,
+        signup_date=signup.signup_date,
+    )
+
+    db.add(new_signup)
+    db.commit()
+    db.refresh(new_signup)
+    return new_signup
+
+
+@app.delete("/signups/single/{signup_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_single_signup(signup_id: int, db: Session = Depends(get_db)):
+    num_rows_deleted = (
+        db.query(models.SingleSignup)
+        .filter(
+            models.SingleSignup.id == signup_id,
+        )
+        .delete()
+    )
+
+    if num_rows_deleted == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Record not found"
+        )
+    elif num_rows_deleted > 1:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Cannot delete more than one record",
+        )
+    else:
+        db.commit()
 
 
 @app.get("/signups/singlesignout")
@@ -128,7 +136,9 @@ def create_single_signout_for_regular_signup(
     return new_single_signout
 
 
-@app.delete("/signups/singlesignout/{signout_id}", status_code=status.HTTP_204_NO_CONTENT)
+@app.delete(
+    "/signups/singlesignout/{signout_id}", status_code=status.HTTP_204_NO_CONTENT
+)
 def sign_back_in_to_regular_shift(signout_id: int, db: Session = Depends(get_db)):
     num_rows_deleted = (
         db.query(models.SingleSignout)

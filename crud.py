@@ -43,26 +43,6 @@ def read_shift_by_id(db: Session, shift_id: int):
 def read_shifts(db: Session):
     # TODO: sort shifts by day_of_week and time_start?
     return db.query(models.Shift).all()
-    # signups = db.query(models.Shift).all()
-
-    # print(shifts)
-
-    # results = []
-
-    # for shift in shifts:
-    #     shift_data = {
-    #         "shift_id": shift.id,
-    #         "day_of_week": shift.day_of_week,
-    #         "time_start": shift.time_start,
-    #         "time_end": shift.time_end,
-    #         "signups": [
-    #             signup.user_id for signup in signups if signup.shift_id == shift.id
-    #         ],
-    #     }
-
-    #     results.append(shift_data)
-
-    # return results
 
 
 def read_signups(db: Session):
@@ -100,10 +80,6 @@ def create_signup(db: Session, signup: schemas.SignupResponse):
     return new_signup
 
 
-# def create_date_signup(db: Session, user_id: int, shift_id: int, date: date):
-#     print([user_id, shift_id, date])
-
-
 def delete_signup(db: Session, signup_id: int):
     db.query(models.Signup).filter(models.Signup.id == signup_id).delete()
     db.commit()
@@ -138,21 +114,13 @@ def read_regular_signup_by_id(
         .filter(models.RegularSignup.id == signup_id)
         .one_or_none()
     )
-    
+
+
 # Single Signouts CRUD
 def read_single_signouts(db: Session) -> list[schemas.SingleSignoutResponse]:
     return db.query(models.SingleSignout).all()
 
 
-# def delete_regular_signup(db: Session, signup_id: int) -> schemas.RegularSignupResponse:
-#     num_deleted = (
-#         db.query(models.RegularSignup)
-#         .filter(
-#             models.RegularSignup.id == signup_id,
-#         )
-#         .delete()
-#     )
-    
-#     print(num_deleted, 'rows deleted')
-
-#     # db.commit
+# Single Signups CRUD
+def read_single_signups(db: Session) -> list[schemas.SingleSignupResponse]:
+    return db.query(models.SingleSignup).all()
