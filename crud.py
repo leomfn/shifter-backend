@@ -138,6 +138,10 @@ def read_regular_signup_by_id(
         .filter(models.RegularSignup.id == signup_id)
         .one_or_none()
     )
+    
+# Single Signouts CRUD
+def read_single_signouts(db: Session) -> list[schemas.SingleSignoutResponse]:
+    return db.query(models.SingleSignout).all()
 
 
 # def delete_regular_signup(db: Session, signup_id: int) -> schemas.RegularSignupResponse:

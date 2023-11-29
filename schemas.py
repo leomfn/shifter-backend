@@ -56,6 +56,16 @@ class RegularSignupResponse(CreateRegularSignup):
     id: int
 
 
+class CreateSingleSignout(BaseModel):
+    user_id: int
+    shift_id: int
+    signout_date: date | None = None
+
+
+class SingleSignoutResponse(CreateSingleSignout):
+    id: int
+
+
 # class ShiftSignup(BaseModel):
 #     user_id: int
 #     shift_id: int

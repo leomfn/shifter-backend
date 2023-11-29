@@ -30,7 +30,14 @@ class RegularSignup(Base):
     shift_id = Column(Integer, ForeignKey("shifts.id"))
     date_start = Column(Date)
     date_end = Column(Date)
+    
+# class SingleSignup(Base):
+#     __tablename__ = "single_signups"
 
+#     id = Column(Integer, primary_key=True, index=True)
+#     user_id = Column(Integer, ForeignKey("users.id"))
+#     shift_id = Column(Integer, ForeignKey("shifts.id"))
+#     signup_date = Column(Date)
 
 class SingleSignout(Base):
     __tablename__ = "single_signouts"
@@ -41,13 +48,13 @@ class SingleSignout(Base):
     signout_date = Column(Date)
 
 
-class Signup(Base):
-    __tablename__ = "signups"
+# class Signup(Base):
+#     __tablename__ = "signups"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    shift_id = Column(Integer, ForeignKey("shifts.id"))
-    type = Column(String)  # once, regular, ...
-    date_once = Column(Date)
-    date_start = Column(Date)
-    date_end = Column(Date)
+#     id = Column(Integer, primary_key=True, index=True)
+#     user_id = Column(Integer, ForeignKey("users.id"))
+#     shift_id = Column(Integer, ForeignKey("shifts.id"))
+#     type = Column(String)  # once, regular, ...
+#     date_once = Column(Date)
+#     date_start = Column(Date)
+#     date_end = Column(Date)
