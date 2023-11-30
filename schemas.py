@@ -61,6 +61,7 @@ class SingleSignupResponse(CreateSingleSignup):
 
 class UserBase(BaseModel):
     email: str
+    user_name: str
     member_status: str
 
 
