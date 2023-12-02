@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-import models, schemas
+from . import models, schemas
 
 
 def check_regular_signup_exists(

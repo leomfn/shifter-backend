@@ -1,19 +1,5 @@
 from pydantic import BaseModel
-from datetime import time, date
-
-
-class Shift(BaseModel):
-    day_of_week: int
-    time_start: time
-    time_end: time
-    date_start: date | None = None
-    date_end: date | None = None
-    is_active: bool = True
-
-
-class ShiftResponse(Shift):
-    id: int
-
+from datetime import date
 
 class CreateSignup(BaseModel):
     user_id: int
@@ -57,21 +43,3 @@ class CreateSingleSignup(BaseModel):
 
 class SingleSignupResponse(CreateSingleSignup):
     id: int
-
-
-class UserBase(BaseModel):
-    email: str
-    user_name: str
-    member_status: str
-
-
-class UserCreate(UserBase):
-    password: str
-
-
-class User(UserBase):
-    id: int
-    is_active: bool
-
-    class Config:
-        from_attributes = True
